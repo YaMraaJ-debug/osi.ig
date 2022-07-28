@@ -8,7 +8,7 @@ from local import *
 def validate_mail(mail):
 	regex = r"^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$"
 	match = r.match(regex, mail)
-	if match == None:
+	if match is None:
 		print('regex : fail')
 	else:
 		print('regex : success')
