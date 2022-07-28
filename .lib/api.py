@@ -22,27 +22,25 @@ def get_page(usrname):
 	global resp_js
 	session = requests.session()
 	session.headers = {'User-Agent': random.choice(useragent)}
-	resp_js = session.get('https://www.instagram.com/'+usrname+'/?__a=1').text
+	resp_js = session.get(f'https://www.instagram.com/{usrname}/?__a=1').text
 	return resp_js
 
 def exinfo():
 
 	def xprint(xdict, text):
-		if xdict != {}:
-			print(f"{su} {re}most used %s :" % text)
-			i = 0
-			for key, val in xdict.items():
-				if len(mail) == 1:
-					if key in mail[0]:
-						continue
-				print(f"  {gr}%s : {wh}%s" % (key, val))
-				i += 1
-				if i > 4:
-					break
-			print()
-		else:
-			pass
-	
+		if xdict == {}:
+			return
+		print(f"{su} {re}most used %s :" % text)
+		i = 0
+		for key, val in xdict.items():
+			if len(mail) == 1 and key in mail[0]:
+				continue
+			print(f"  {gr}%s : {wh}%s" % (key, val))
+			i += 1
+			if i > 4:
+				break
+		print()
+
 	raw = find(resp_js)
 
 	mail = raw['email']
@@ -65,17 +63,15 @@ def exinfo():
 def user_info(usrname):
 
 	global total_uploads, is_private
-	
+
 	resp_js = get_page(usrname)
 	js = json.loads(resp_js)
 	js = js['graphql']['user']
-	
+
 	if js['is_private'] != False:
 		is_private = True
-	
-	if js['edge_owner_to_timeline_media']['count'] > 12:
-		pass
-	else:
+
+	if js['edge_owner_to_timeline_media']['count'] <= 12:
 		total_uploads = js['edge_owner_to_timeline_media']['count']
 
 	usrinfo = {
@@ -112,7 +108,6 @@ def user_info(usrname):
 
 def highlight_post_info(i):
 
-	postinfo = {}
 	total_child = 0
 	child_img_list = []
 
@@ -156,9 +151,6 @@ def highlight_post_info(i):
 
 			child_img_list.append(img_info)
 
-		postinfo['imgs'] = child_img_list
-		postinfo['info'] = info
-
 	else:
 		info = {
 			'comments': js['edge_media_to_comment']['count'],
@@ -186,24 +178,18 @@ def highlight_post_info(i):
 				'is_video': js['is_video'],
 				'accessibility': js['accessibility_caption']
 			}
-		
-		child_img_list.append(img_info)
-		
-		postinfo['imgs'] = child_img_list
-		postinfo['info'] = info
 
-	return postinfo
+		child_img_list.append(img_info)
+
+	return {'imgs': child_img_list, 'info': info}
 
 def post_info():
 	
 	if is_private != False:
 		print(f"{fa} {gr}cannot use -p for private accounts !\n")
 		sys.exit(1)
-	
-	posts = []
-	
-	for x in range(total_uploads):
-		posts.append(highlight_post_info(x))
+
+	posts = [highlight_post_info(x) for x in range(total_uploads)]
 
 	for x in range(len(posts)):
 		# get 1 item from post list

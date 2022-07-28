@@ -19,7 +19,7 @@ er = f"\033[1;31m[\033[1;34m?\033[1;31m]{nu}"
 # 30-33, 48-50, 94-96, 195-210
 
 def urlshortner(url):
-    data = requests.get("http://tinyurl.com/api-create.php?url=" + url)
+    data = requests.get(f"http://tinyurl.com/api-create.php?url={url}")
     return data.text
 
 def write(stri):
@@ -30,14 +30,11 @@ def write(stri):
 
 def sort_list(xlist):
     with_count = dict(collections.Counter(xlist))
-    output = {k: v for k, v in sorted(with_count.items(), reverse=True, key=lambda item: item[1])}
-    return output
+    return dict(sorted(with_count.items(), reverse=True, key=lambda item: item[1]))
     
 def find(stri):
-    exinfo = {}
     email = r.findall(r"[_a-z0-9-\.]+[＠@]{1}[a-z0-9]+\.[a-z0-9]+", stri.lower())
-    exinfo['email'] = email
-
+    exinfo = {'email': email}
     #(?:^|\s)([＃|@]{1}[_a-zA-Z0-9\.\+-]+)
     tags = r.findall(r"[＃#]{1}([_a-zA-Z0-9\.\+-]+)", stri)
     exinfo['tags'] = tags
